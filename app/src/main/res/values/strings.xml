@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">Simple Order Application</string>
+    <string name="order_screen_title">Pedido n</string>
+    <string name="order_list_screen_title">Meus Pedidos</string>
+    <string name="client_form_title">Cliente</string>
+    <string name="product_form_title">Novo item</string>
+    <string name="product_card_description">Descricao</string>
+    <string name="product_card_quant">Qtd</string>
+    <string name="product_card_price">valor</string>
+    <string name="client_form_name">Nome</string>
+    <string name="client_form_phone">Telefone</string>
+    <string name="client_form_cpf">CPF</string>
+    <string name="client_form_address">Endereço</string>
+    <string name="product_form_quantidade">Quantidade</string>
+    <string name="product_form_description">descrição</string>
+    <string name="product_form_value">Valor</string>
+    <string name="client_screen_title">Cliente</string>
+    <string name="add_products_btn">Adicionar item</string>
+    <string name="monetary_simbol">R$</string>
+    <string name="create_order_btn">Criar pedido</string>
 </resources>

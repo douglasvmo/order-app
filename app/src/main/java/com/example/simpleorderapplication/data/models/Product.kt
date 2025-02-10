@@ -8,11 +8,11 @@ import androidx.room.PrimaryKey
 data class Product(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "product_id")
-    val id: Int,
-    var name: String,
-    var description: String,
-    var price: Double,
+    var id: Long = 0,
+    var quantity: Double = 0.0,
+    var description: String = "",
+    var price: Double = 0.0,
 
     @ColumnInfo(name = "order_id")
-    val orderId: Int
+    var orderId: Long = 0
 )

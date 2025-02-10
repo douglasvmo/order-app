@@ -8,10 +8,10 @@ import androidx.room.PrimaryKey
 data class Client (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "client_id")
-    val id: Int = 0,
-    val name: String,
-    val phone: String?,
-    var cpf_cnpj: String?,
-    val email: String?,
-    val address: String?
+    var id: Long = 0,
+    var name: String = "",
+    var phone: String = "",
+    var cpf_cnpj: String = "",
+    var email: String = "",
+    var address: String = ""
 )

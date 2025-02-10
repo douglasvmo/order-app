@@ -20,13 +20,13 @@ import java.util.Date
 data class Order(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "order_id")
-    val id: Int = 0,
+    var id: Long = 0,
 
     @ColumnInfo(name = "client_id")
-    var clientId: Int,
+    var clientId: Long = 0,
 
     var date: Date = Date(),
-    var status: String?,
-    var type: String?,
+    var status: String = "",
+    var type: String = "",
     var total: Double = 0.0
 )
