@@ -1,8 +1,10 @@
 package com.example.simpleorderapplication.ui.viewmodels
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.simpleorderapplication.data.AppDatabase
 import com.example.simpleorderapplication.data.models.Client
@@ -17,29 +19,41 @@ class OrderViewModel(private val database: AppDatabase) : ViewModel() {
     private val _orders = MutableLiveData<List<OrderWithClient>>(listOf())
     val orders: LiveData<List<OrderWithClient>> = _orders
 
-    private val _currentOrder = MutableLiveData<Order>();
-    val currentOrder: LiveData<Order> = _currentOrder
+    private val _currentOrder = MutableLiveData<OrderWithClient>();
+    val currentOrder: LiveData<OrderWithClient> = _currentOrder
 
     fun getNextOrderNumber(): Int {
         return _orders.value!!.size + 1
     }
 
     fun loadOrders() {
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching {
+                database.getOrderClientDAO().getAll()
+            }.onSuccess {
+                withContext(Dispatchers.Main) {
+                    _orders.postValue(it)
+                }
+            }.onFailure {
+                it.printStackTrace()
+            }
+        }
 
     }
 
     fun createNewOrder(client: Client) {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 runCatching {
                     if(client.id == 0L){
-                        val clientId = database.getClientDAO().insert(client)
+                        val clientId = database.getOrderClientDAO().insert(client)
                         client.id = clientId
                     }
                     val order = Order(clientId = client.id)
-                    val orderId = database.getOrderDAO().insert(order)
+                    val orderId = database.getOrderClientDAO().insert(order)
                     order.apply { id = orderId }
+                    OrderWithClient(client, order)
                 }.onSuccess {
-                    withContext(Dispatchers.IO) {
+                    withContext(Dispatchers.Main){
                         _currentOrder.postValue(it)
                     }
                 }.onFailure {
@@ -50,7 +64,7 @@ class OrderViewModel(private val database: AppDatabase) : ViewModel() {
     }
 
     fun addProducts(product: Product) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             runCatching {
                 database.getProductDAO().insert(product)
             }.onSuccess {
@@ -58,6 +72,16 @@ class OrderViewModel(private val database: AppDatabase) : ViewModel() {
             }
         }
 
+    }
+
+    class OrderViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(OrderViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return OrderViewModel(AppDatabase.getInstance(context)) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
     }
 
 }

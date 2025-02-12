@@ -1,7 +1,7 @@
 package com.example.simpleorderapplication.ui.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -39,7 +39,7 @@ fun GoBackIcon(onGoBackClick: () -> Unit) {
         onClick = onGoBackClick
     ) {
         Icon(
-            Icons.Default.ArrowBack,
+            Icons.AutoMirrored.Filled.ArrowBack,
             "Go Back"
         )
     }

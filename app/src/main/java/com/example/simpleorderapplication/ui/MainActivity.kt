@@ -4,17 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.material3.Surface
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.simpleorderapplication.ui.screens.OrderListScreen
 import com.example.simpleorderapplication.ui.screens.CreateOrderScreen
+import com.example.simpleorderapplication.ui.screens.OrderListScreen
 import com.example.simpleorderapplication.ui.theme.SimpleOrderApplicationTheme
 import com.example.simpleorderapplication.ui.viewmodels.OrderViewModel
-import com.example.simpleorderapplication.ui.viewmodels.OrderViewModelFactory
 
 class MainActivity : ComponentActivity() {
 
@@ -23,7 +21,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val viewModel: OrderViewModel = viewModel(factory = OrderViewModelFactory(this))
+            val viewModel: OrderViewModel = viewModel(factory = OrderViewModel.OrderViewModelFactory(this))
             SimpleOrderApplicationTheme {
                 Surface {
                     val navController = rememberNavController()
