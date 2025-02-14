@@ -20,34 +20,30 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.simpleorderapplication.R
-import com.example.simpleorderapplication.data.AppDatabase
 import com.example.simpleorderapplication.data.models.Client
-import com.example.simpleorderapplication.data.models.Product
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
 import com.example.simpleorderapplication.ui.viewmodels.OrderViewModel
 
 
 @Composable
 fun CreateOrderScreen(
-    viewModel: OrderViewModel,
-    onBackClick: () -> Unit = {}
+    navController: NavController,
+    viewModel: OrderViewModel
 ) {
-    val navController = rememberNavController()
+
 
     Scaffold(
         topBar = {
             SimpleOrderAppTopBar(
                 stringResource(R.string.order_screen_title).plus(" ${viewModel.getNextOrderNumber()}"),
-                onGoBackClick = onBackClick
+                onGoBackClick = { navController.popBackStack() }
             )
         }
     ) { innerPadding ->
@@ -55,45 +51,20 @@ fun CreateOrderScreen(
             modifier = Modifier
                 .padding(innerPadding)
         ) {
-            NavHost(
-                navController = navController,
-                startDestination = CreateOrderRoute.OrderClientForm.name
-            ) {
-                composable(CreateOrderRoute.OrderClientForm.name) {
-                    ClientForm(
-                        onClickNext = { name, phone, cpf, address, email ->
-                            val client = Client(
-                                name = name,
-                                phone = phone,
-                                cpf_cnpj = cpf,
-                                address = address,
-                                email = email
-                            )
+            ClientForm(
+                onClickNext = { name, phone, cpf, address, email ->
+                    val client = Client(
+                        name = name,
+                        phone = phone,
+                        cpf_cnpj = cpf,
+                        address = address,
+                        email = email
+                    )
+                    viewModel.createNewOrder(client)
+                    navController.popBackStack()
 
-                            viewModel.createNewOrder(client)
-                            navController.navigate(CreateOrderRoute.OrderProductAdd.name)
-                        }
-                    )
                 }
-                composable(CreateOrderRoute.OrderProductAdd.name) {
-                    ProductForm(
-                        onAddProduct = { quantity, description, price ->
-                            viewModel.currentOrder.value?.let {
-                                val product = Product(
-                                    quantity = quantity.toDouble(),
-                                    description = description,
-                                    price = price.toDouble(),
-                                    orderId = it.order.id
-                                )
-                                viewModel.addProducts(product)
-                            }
-                        },
-                        onClickNext = {
-                            onBackClick()
-                        }
-                    )
-                }
-            }
+            )
         }
     }
 }
@@ -226,6 +197,5 @@ fun ClientForm(
 @Preview
 @Composable
 fun OrderScreenPreview(){
-    val viewModelFake  = OrderViewModel(AppDatabase.getInstance(LocalContext.current))
-    CreateOrderScreen(viewModelFake)
+
 }

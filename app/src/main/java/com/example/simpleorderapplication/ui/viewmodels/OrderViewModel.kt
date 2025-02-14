@@ -32,7 +32,7 @@ class OrderViewModel(private val database: AppDatabase) : ViewModel() {
                 database.getOrderClientDAO().getAll()
             }.onSuccess {
                 withContext(Dispatchers.Main) {
-                    _orders.postValue(it)
+                    _orders.value = it
                 }
             }.onFailure {
                 it.printStackTrace()

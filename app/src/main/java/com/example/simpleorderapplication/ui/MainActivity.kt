@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.simpleorderapplication.ui.screens.AddProductScreen
 import com.example.simpleorderapplication.ui.screens.CreateOrderScreen
 import com.example.simpleorderapplication.ui.screens.OrderListScreen
 import com.example.simpleorderapplication.ui.theme.SimpleOrderApplicationTheme
@@ -21,26 +22,19 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            val viewModel: OrderViewModel = viewModel(factory = OrderViewModel.OrderViewModelFactory(this))
+            val viewModel: OrderViewModel = viewModel(factory = OrderViewModel.OrderViewModelFactory(this.applicationContext))
             SimpleOrderApplicationTheme {
                 Surface {
                     val navController = rememberNavController()
                     NavHost(navController, startDestination = AppScreen.OrderList.name) {
                         composable(AppScreen.OrderList.name) {
-                            OrderListScreen(
-                                viewModel,
-                                onNewOrderClick = {
-                                    navController.navigate(AppScreen.CreateOrder.name)
-                                }
-                            )
+                            OrderListScreen(navController, viewModel)
                         }
                         composable(AppScreen.CreateOrder.name) {
-                            CreateOrderScreen(
-                                viewModel,
-                                onBackClick = {
-                                    navController.navigate(AppScreen.OrderList.name)
-                                }
-                            )
+                            CreateOrderScreen(navController, viewModel)
+                        }
+                        composable(AppScreen.AddPrdoduct.name) {
+                            AddProductScreen(navController, viewModel)
                         }
                     }
                 }
