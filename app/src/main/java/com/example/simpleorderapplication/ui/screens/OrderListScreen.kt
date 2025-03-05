@@ -1,20 +1,19 @@
 package com.example.simpleorderapplication.ui.screens
 
-import androidx.activity.ComponentActivity
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -31,20 +30,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.findNavController
 import com.example.simpleorderapplication.R
-import com.example.simpleorderapplication.data.models.Client
-import com.example.simpleorderapplication.data.models.Order
-import com.example.simpleorderapplication.data.models.Product
 import com.example.simpleorderapplication.data.relations.OrderWithClient
 import com.example.simpleorderapplication.ui.AppScreen
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
@@ -82,7 +73,13 @@ fun OrderListScreen(
     ) { innerPadding ->
         LazyColumn(modifier = Modifier.padding(innerPadding), contentPadding = PaddingValues(4.dp)) {
                 items(data.value) {
-                        order -> OrderCard(order)
+                        order -> OrderCard(
+                    order,
+                    onClick = {
+                        viewModel.selectOrder(order)
+                        navController.navigate(AppScreen.OrderDetails.name)
+                    },
+                )
                 }
 
         }
@@ -91,10 +88,13 @@ fun OrderListScreen(
 }
 
 @Composable
-fun OrderCard(order: OrderWithClient) {
+fun OrderCard(order: OrderWithClient, onClick: () -> Unit) {
     OutlinedCard(
         Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth().padding(4.dp).clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberRipple()
+            ) { onClick() },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
         ),
@@ -123,39 +123,8 @@ fun OrderCard(order: OrderWithClient) {
 }
 
 
-
-
-@Composable
-fun ProductCard(product: Product){
-    OutlinedCard(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        )
-    ) {
-        Row(modifier = Modifier
-            .padding(4.dp)
-            .fillMaxWidth()) {
-            Column(modifier = Modifier.padding(14.dp, 4.dp)) {
-                Text(stringResource(R.string.product_card_quant), fontWeight = FontWeight.Bold, fontSize = MaterialTheme.typography.titleSmall.fontSize)
-                Text(product.quantity.toString())
-            }
-            Column(modifier = Modifier.padding(4.dp)) {
-                Text(stringResource(R.string.product_card_description), fontWeight = FontWeight.Bold, fontSize = MaterialTheme.typography.titleSmall.fontSize)
-                Text(product.description.toString())
-            }
-            Column(modifier = Modifier
-                .padding(4.dp)
-                .fillMaxWidth(), horizontalAlignment = Alignment.End) {
-                Text(stringResource(R.string.product_card_price), fontWeight = FontWeight.Bold, fontSize = MaterialTheme.typography.titleSmall.fontSize)
-                Text(product.price.toString())
-            }
-        }
-    }
-}
-
-
 @Composable
 @Preview
 fun OrderListScreenPreview() {
-OrderCard(OrderWithClient(Client(name = "Douglas Vinicius Martins"), Order()))
+
 }

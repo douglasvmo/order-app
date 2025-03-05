@@ -11,6 +11,6 @@ interface ClientDAO {
     @Insert
     suspend fun insert(client: Client): Long
 
-    @Query("SELECT * FROM clients WHERE client_id = :clientId")
+    @Query("SELECT * FROM products WHERE order_id = :clientId")
     suspend fun findById(clientId: Long): Client?
 }

@@ -69,69 +69,6 @@ fun CreateOrderScreen(
     }
 }
 
-@Composable
-fun ProductForm(
-    onAddProduct: (quantity: String, description: String, price: String) -> Unit,
-    onClickNext: () -> Unit
-) {
-    var quantity by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("") }
-
-    BackHandler(enabled = true) {
-        onClickNext()
-    }
-
-    Column(
-        modifier = Modifier
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            stringResource(R.string.product_form_title),
-            fontWeight = FontWeight.Bold,
-            fontSize = MaterialTheme.typography.titleLarge.fontSize
-        )
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = quantity,
-            onValueChange = { quantity = it },
-            label = { Text(stringResource(R.string.product_card_quant)) }
-        )
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = description,
-            onValueChange = { description = it },
-            label = { Text(stringResource(R.string.product_card_description)) }
-        )
-        TextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = price,
-            onValueChange = { price = it },
-            label = { Text(stringResource(R.string.product_card_price)) }
-        )
-        FilledTonalButton(
-            onClick = {
-                onAddProduct(quantity, description, price)
-            },
-            Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(stringResource(R.string.add_products_btn))
-        }
-        FilledTonalButton(
-            onClick = {},
-            Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(stringResource(R.string.add_products_btn))
-        }
-    }
-}
-
 
 @Composable
 fun ClientForm(

@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.simpleorderapplication.ui.screens.AddProductScreen
+import com.example.simpleorderapplication.ui.screens.ProductListScreen
 import com.example.simpleorderapplication.ui.screens.CreateOrderScreen
 import com.example.simpleorderapplication.ui.screens.OrderListScreen
 import com.example.simpleorderapplication.ui.theme.SimpleOrderApplicationTheme
@@ -32,6 +33,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(AppScreen.CreateOrder.name) {
                             CreateOrderScreen(navController, viewModel)
+                        }
+                        composable(AppScreen.OrderDetails.name) {
+                            ProductListScreen(navController, viewModel)
                         }
                         composable(AppScreen.AddPrdoduct.name) {
                             AddProductScreen(navController, viewModel)

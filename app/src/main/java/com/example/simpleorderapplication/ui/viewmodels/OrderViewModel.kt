@@ -17,10 +17,13 @@ import kotlinx.coroutines.withContext
 
 class OrderViewModel(private val database: AppDatabase) : ViewModel() {
     private val _orders = MutableLiveData<List<OrderWithClient>>(listOf())
-    val orders: LiveData<List<OrderWithClient>> = _orders
+    val orders = _orders
 
     private val _currentOrder = MutableLiveData<OrderWithClient>();
-    val currentOrder: LiveData<OrderWithClient> = _currentOrder
+    val currentOrder = _currentOrder
+
+    private val _products = MutableLiveData<List<Product>>();
+    val products = _products
 
     fun getNextOrderNumber(): Int {
         return _orders.value!!.size + 1
@@ -38,8 +41,20 @@ class OrderViewModel(private val database: AppDatabase) : ViewModel() {
                 it.printStackTrace()
             }
         }
-
     }
+
+   fun  getCurrentOrderProducts(){
+       val orderId = _currentOrder.value?.order?.id!!
+       viewModelScope.launch(Dispatchers.IO) {
+           runCatching {
+               database.getProductDAO().allProducts(orderId)
+           }.onSuccess {
+               _products.postValue(it)
+           }.onFailure {
+               it.printStackTrace()
+           }
+       }
+   }
 
     fun createNewOrder(client: Client) {
             viewModelScope.launch(Dispatchers.IO) {
@@ -72,6 +87,10 @@ class OrderViewModel(private val database: AppDatabase) : ViewModel() {
             }
         }
 
+    }
+
+    fun selectOrder(order: OrderWithClient) {
+        _currentOrder.postValue(order)
     }
 
     class OrderViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
