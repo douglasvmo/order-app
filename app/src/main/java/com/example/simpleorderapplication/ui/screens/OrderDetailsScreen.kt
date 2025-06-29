@@ -18,7 +18,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -34,25 +38,29 @@ import com.example.simpleorderapplication.ui.viewmodels.OrderViewModel
 @Composable
 fun ProductListScreen(
     navController: NavController,
-    viewModel: OrderViewModel
+    viewModel: OrderViewModel,
+    orderId: Long
 ) {
-    val order = viewModel.currentOrder.observeAsState()
-    val products = viewModel.products.observeAsState(listOf())
+    var products by remember { mutableStateOf<List<Product>>(emptyList()) }
+
 
     LaunchedEffect(Unit) {
-        viewModel.getCurrentOrderProducts()
+        products = viewModel.getProducts(orderId)
     }
 
     Scaffold (
         topBar = {
             SimpleOrderAppTopBar(
-                stringResource(R.string.order_screen_title).plus(" ${order.value?.order?.id}"),
+                   stringResource(R.string.order_screen_title).plus(orderId),
                 onGoBackClick = { navController.popBackStack() }
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(AppScreen.AddPrdoduct.name) },
+                onClick = {
+                   val path = AppScreen.AddProduct.withArgs(orderId)
+                    navController.navigate(path)
+                },
                 shape = CircleShape
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add")
@@ -60,7 +68,7 @@ fun ProductListScreen(
         }
     ){ innerPadding ->
         LazyColumn(Modifier.padding(innerPadding)) {
-            items(products.value) {
+            items(products) {
                product -> ProductCard(product)
 
             }

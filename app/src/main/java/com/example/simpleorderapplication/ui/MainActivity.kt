@@ -6,9 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Surface
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.simpleorderapplication.ui.screens.AddProductScreen
 import com.example.simpleorderapplication.ui.screens.ProductListScreen
 import com.example.simpleorderapplication.ui.screens.CreateOrderScreen
@@ -27,18 +29,21 @@ class MainActivity : ComponentActivity() {
             SimpleOrderApplicationTheme {
                 Surface {
                     val navController = rememberNavController()
-                    NavHost(navController, startDestination = AppScreen.OrderList.name) {
-                        composable(AppScreen.OrderList.name) {
+                    NavHost(navController, startDestination = AppScreen.OrderList.route) {
+                        composable(AppScreen.OrderList.route) {
                             OrderListScreen(navController, viewModel)
                         }
-                        composable(AppScreen.CreateOrder.name) {
+                        composable(AppScreen.CreateOrder.route) {
                             CreateOrderScreen(navController, viewModel)
                         }
-                        composable(AppScreen.OrderDetails.name) {
-                            ProductListScreen(navController, viewModel)
+                        composable(AppScreen.OrderDetails.route,  arguments = listOf(navArgument("orderId") { type = NavType.LongType })) {
+                            ProductListScreen(navController, viewModel, it.arguments!!.getLong("orderId"))
                         }
-                        composable(AppScreen.AddPrdoduct.name) {
-                            AddProductScreen(navController, viewModel)
+                        composable(
+                            AppScreen.AddProduct.route,
+                            arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+                        ) {
+                            AddProductScreen(navController, viewModel, it.arguments!!.getLong("orderId"))
                         }
                     }
                 }

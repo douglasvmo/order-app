@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,7 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.simpleorderapplication.R
-import com.example.simpleorderapplication.data.models.Client
+import com.example.simpleorderapplication.data.AppDatabase
+import com.example.simpleorderapplication.data.models.Order
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
 import com.example.simpleorderapplication.ui.viewmodels.OrderViewModel
 
@@ -38,11 +40,10 @@ fun CreateOrderScreen(
     viewModel: OrderViewModel
 ) {
 
-
     Scaffold(
         topBar = {
             SimpleOrderAppTopBar(
-                stringResource(R.string.order_screen_title).plus(" ${viewModel.getNextOrderNumber()}"),
+                stringResource(R.string.order_screen_title).plus(" x"),
                 onGoBackClick = { navController.popBackStack() }
             )
         }
@@ -53,14 +54,11 @@ fun CreateOrderScreen(
         ) {
             ClientForm(
                 onClickNext = { name, phone, cpf, address, email ->
-                    val client = Client(
-                        name = name,
-                        phone = phone,
-                        cpf_cnpj = cpf,
-                        address = address,
-                        email = email
-                    )
-                    viewModel.createNewOrder(client)
+                    val order = Order().apply {
+                        clientName = name
+                    }
+
+                    viewModel.createNewOrder(order)
                     navController.popBackStack()
 
                 }

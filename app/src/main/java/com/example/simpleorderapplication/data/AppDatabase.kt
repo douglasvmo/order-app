@@ -5,16 +5,15 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.simpleorderapplication.data.dao.OrderClientDAO
+import com.example.simpleorderapplication.data.dao.OrderDAO
 import com.example.simpleorderapplication.data.dao.ProductsDAO
-import com.example.simpleorderapplication.data.models.Client
 import com.example.simpleorderapplication.data.models.Order
 import com.example.simpleorderapplication.data.models.Product
 
-@Database(entities = [Client::class, Product::class, Order::class], version = 1, exportSchema = false)
+@Database(entities = [Product::class, Order::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase: RoomDatabase() {
-    abstract fun getOrderClientDAO(): OrderClientDAO
+    abstract fun getOrderDAO(): OrderDAO
     abstract fun getProductDAO(): ProductsDAO
 
     companion object {

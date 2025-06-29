@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -29,17 +30,19 @@ import com.example.simpleorderapplication.R
 import com.example.simpleorderapplication.data.models.Product
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
 import com.example.simpleorderapplication.ui.viewmodels.OrderViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 
 @Composable
-fun AddProductScreen(navController: NavController, viewModel: OrderViewModel){
+fun AddProductScreen(navController: NavController, viewModel: OrderViewModel, orderId: Long){
+    val coroutineScope = rememberCoroutineScope()
 
-    val order = viewModel.currentOrder.observeAsState();
 
     Scaffold(
         topBar = {
             SimpleOrderAppTopBar(
-                stringResource(R.string.order_screen_title).plus(" ${order.value?.order?.id}"),
+                stringResource(R.string.order_screen_title).plus(" ${orderId}"),
                 onGoBackClick = { navController.popBackStack() }
             )
         }
@@ -50,10 +53,15 @@ fun AddProductScreen(navController: NavController, viewModel: OrderViewModel){
                 val product = Product(
                     quantity = quantity.toDoubleOrNull() ?: 1.0,
                     description = description,
-                    price = price.toDoubleOrNull() ?: 0.0,
-                    orderId = order.value?.order?.id!!
+                    price = price.toLong() * 100,
+                    orderId = orderId
                 )
-                viewModel.addProducts(product)
+
+                coroutineScope.launch {
+                    viewModel.addProducts(product)
+                    navController.popBackStack()
+                }
+
             },
         )
 

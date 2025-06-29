@@ -23,9 +23,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -36,7 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.simpleorderapplication.R
-import com.example.simpleorderapplication.data.relations.OrderWithClient
+import com.example.simpleorderapplication.data.models.Order
+
 import com.example.simpleorderapplication.ui.AppScreen
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
 import com.example.simpleorderapplication.ui.viewmodels.OrderViewModel
@@ -47,12 +49,12 @@ fun OrderListScreen(
     navController: NavController,
     viewModel: OrderViewModel
 ) {
-    val data = viewModel.orders.observeAsState(listOf())
+    var orders by remember { mutableStateOf<List<Order>>(emptyList()) }
     var presses by remember { mutableIntStateOf(0) }
 
 
     LaunchedEffect(Unit) {
-        viewModel.loadOrders()
+       orders = viewModel.getOrders()
     }
 
 
@@ -63,7 +65,7 @@ fun OrderListScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    navController.navigate(AppScreen.CreateOrder.name)
+                    navController.navigate(AppScreen.CreateOrder.route)
                 },
                 shape = CircleShape
             ) {
@@ -71,27 +73,33 @@ fun OrderListScreen(
             }
         }
     ) { innerPadding ->
-        LazyColumn(modifier = Modifier.padding(innerPadding), contentPadding = PaddingValues(4.dp)) {
-                items(data.value) {
-                        order -> OrderCard(
+
+        LazyColumn(
+            modifier = Modifier.padding(innerPadding),
+            contentPadding = PaddingValues(4.dp)
+        ) {
+            items(orders) { order ->
+                OrderCard(
                     order,
                     onClick = {
-                        viewModel.selectOrder(order)
-                        navController.navigate(AppScreen.OrderDetails.name)
+                        navController.navigate(AppScreen.OrderDetails.withArgs(order.id))
                     },
                 )
-                }
+            }
 
         }
     }
 
+
 }
 
 @Composable
-fun OrderCard(order: OrderWithClient, onClick: () -> Unit) {
+fun OrderCard(order: Order, onClick: () -> Unit) {
     OutlinedCard(
         Modifier
-            .fillMaxWidth().padding(4.dp).clickable(
+            .fillMaxWidth()
+            .padding(4.dp)
+            .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = rememberRipple()
             ) { onClick() },
@@ -103,19 +111,19 @@ fun OrderCard(order: OrderWithClient, onClick: () -> Unit) {
             Column(Modifier.fillMaxWidth(0.85f)) {
                 Row( verticalAlignment = Alignment.Bottom) {
                     Text(stringResource(R.string.order_card_order_number))
-                    Text(order.order.id.toString(), Modifier.padding(horizontal = 4.dp), fontSize = 16.sp)
+                    Text(order.id.toString(), Modifier.padding(horizontal = 4.dp), fontSize = 16.sp)
                 }
                 Row {
                     Text(stringResource(R.string.order_card_client_name))
-                    Text(order.client.name, Modifier.padding(horizontal = 4.dp), fontSize = 16.sp)
+                    Text(order.clientName, Modifier.padding(horizontal = 4.dp), fontSize = 16.sp)
                 }
                 Row {
                     Text(stringResource(R.string.order_card_client_phone))
-                    Text(order.client.phone, Modifier.padding(horizontal = 4.dp))
+                    Text(order.clientPhone, Modifier.padding(horizontal = 4.dp))
                 }
             }
             Column(Modifier.fillMaxWidth(), Arrangement.Top, Alignment.CenterHorizontally) {
-                Text(order.order.total.toString(), fontSize = 12.sp)
+                Text(order.total.toString(), fontSize = 12.sp)
             }
         }
 
