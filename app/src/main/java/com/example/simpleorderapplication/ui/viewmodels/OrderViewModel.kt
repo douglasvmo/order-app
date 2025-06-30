@@ -1,22 +1,18 @@
 package com.example.simpleorderapplication.ui.viewmodels
 
 import android.content.Context
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.example.simpleorderapplication.data.AppDatabase
-import com.example.simpleorderapplication.data.models.Order
-import com.example.simpleorderapplication.data.models.Product
-
+import com.example.simpleorderapplication.data.models.OrderEntity
+import com.example.simpleorderapplication.data.models.ProductEntity
+import com.example.simpleorderapplication.domain.Order
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class OrderViewModel(private val database: AppDatabase) : ViewModel() {
 
-    suspend fun getOrders(): List<Order> = withContext(Dispatchers.IO) {
+    suspend fun getOrders(): List<OrderEntity> = withContext(Dispatchers.IO) {
         runCatching {
             database.getOrderDAO().getAll()
         }.getOrElse {
@@ -25,31 +21,33 @@ class OrderViewModel(private val database: AppDatabase) : ViewModel() {
         }
     }
 
-    suspend fun getProducts(orderId: Long): List<Product> = withContext(Dispatchers.IO) {
+    suspend fun getOrder(orderId: Long): Order = withContext(Dispatchers.IO) {
         runCatching {
-            database.getProductDAO().allProducts(orderId)
+            database.getOrderDAO().getOrderWithProducts(orderId).toDomain()
         }.getOrElse {
             it.printStackTrace()
-            emptyList()
+            Order()
         }
     }
 
 
-    fun createNewOrder(order: Order) {
-            viewModelScope.launch(Dispatchers.IO) {
-                runCatching {
-                    val orderId = database.getOrderDAO().insert(order)
-                    order.apply { id = orderId }
-                }.onFailure {
-                    it.printStackTrace()
-                }
+    suspend fun createNewOrder(order: OrderEntity): OrderEntity = withContext(Dispatchers.IO) {
+        runCatching {
+            val orderId = database.getOrderDAO().insert(order)
+            order.apply { id = orderId }
+        }.getOrElse {
+            it.printStackTrace()
+            order
         }
-
     }
 
-   suspend fun addProducts(product: Product): Product = withContext(Dispatchers.IO) {
+   suspend fun addProducts(product: ProductEntity): ProductEntity = withContext(Dispatchers.IO) {
        runCatching {
            val productId = database.getProductDAO().insert(product)
+           val products = database.getProductDAO().allProducts(product.orderId)
+           val amount = products.sumOf { it.quantity * it.price }
+           database.getOrderDAO().updateAmount(product.orderId, amount)
+
            product.apply { id = productId }
        }.getOrElse {
            it.printStackTrace()

@@ -1,8 +1,6 @@
 package com.example.simpleorderapplication.ui.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -27,10 +24,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.simpleorderapplication.R
-import com.example.simpleorderapplication.data.models.Product
+import com.example.simpleorderapplication.data.models.ProductEntity
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
 import com.example.simpleorderapplication.ui.viewmodels.OrderViewModel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 
@@ -50,8 +46,8 @@ fun AddProductScreen(navController: NavController, viewModel: OrderViewModel, or
         ProductForm(
             Modifier.padding(innerPadding),
             onAddProduct = { quantity, description, price ->
-                val product = Product(
-                    quantity = quantity.toDoubleOrNull() ?: 1.0,
+                val product = ProductEntity(
+                    quantity = quantity.toInt(),
                     description = description,
                     price = price.toLong() * 100,
                     orderId = orderId
@@ -64,7 +60,6 @@ fun AddProductScreen(navController: NavController, viewModel: OrderViewModel, or
 
             },
         )
-
     }
 }
 
@@ -74,7 +69,7 @@ fun ProductForm(
     modifier: Modifier = Modifier,
     onAddProduct: (quantity: String, description: String, price: String) -> Unit,
 ) {
-    var quantity by remember { mutableStateOf("") }
+    var quantity by remember { mutableStateOf("1") }
     var description by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
 

@@ -1,6 +1,5 @@
 package com.example.simpleorderapplication.ui.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,20 +17,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.simpleorderapplication.R
-import com.example.simpleorderapplication.data.AppDatabase
-import com.example.simpleorderapplication.data.models.Order
+import com.example.simpleorderapplication.data.models.OrderEntity
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
 import com.example.simpleorderapplication.ui.viewmodels.OrderViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -39,6 +37,7 @@ fun CreateOrderScreen(
     navController: NavController,
     viewModel: OrderViewModel
 ) {
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -54,13 +53,14 @@ fun CreateOrderScreen(
         ) {
             ClientForm(
                 onClickNext = { name, phone, cpf, address, email ->
-                    val order = Order().apply {
+                    val order = OrderEntity().apply {
                         clientName = name
                     }
 
-                    viewModel.createNewOrder(order)
-                    navController.popBackStack()
-
+                    coroutineScope.launch {
+                        viewModel.createNewOrder(order)
+                        navController.popBackStack()
+                    }
                 }
             )
         }

@@ -23,7 +23,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.simpleorderapplication.R
-import com.example.simpleorderapplication.data.models.Order
+import com.example.simpleorderapplication.data.models.OrderEntity
 
 import com.example.simpleorderapplication.ui.AppScreen
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
@@ -49,7 +48,7 @@ fun OrderListScreen(
     navController: NavController,
     viewModel: OrderViewModel
 ) {
-    var orders by remember { mutableStateOf<List<Order>>(emptyList()) }
+    var orders by remember { mutableStateOf<List<OrderEntity>>(emptyList()) }
     var presses by remember { mutableIntStateOf(0) }
 
 
@@ -94,7 +93,7 @@ fun OrderListScreen(
 }
 
 @Composable
-fun OrderCard(order: Order, onClick: () -> Unit) {
+fun OrderCard(order: OrderEntity, onClick: () -> Unit) {
     OutlinedCard(
         Modifier
             .fillMaxWidth()
@@ -123,7 +122,7 @@ fun OrderCard(order: Order, onClick: () -> Unit) {
                 }
             }
             Column(Modifier.fillMaxWidth(), Arrangement.Top, Alignment.CenterHorizontally) {
-                Text(order.total.toString(), fontSize = 12.sp)
+                Text(order.amount.div(100).toString(), fontSize = 12.sp)
             }
         }
 

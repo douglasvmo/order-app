@@ -9,9 +9,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
@@ -19,21 +21,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.simpleorderapplication.R
-import com.example.simpleorderapplication.data.models.Product
+import com.example.simpleorderapplication.domain.Order
+import com.example.simpleorderapplication.domain.Product
 import com.example.simpleorderapplication.ui.AppScreen
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
 import com.example.simpleorderapplication.ui.viewmodels.OrderViewModel
+import com.example.simpleorderapplication.utils.PdfUtils
+import com.example.simpleorderapplication.utils.ShereUtils
 
 @Composable
 fun ProductListScreen(
@@ -41,18 +46,32 @@ fun ProductListScreen(
     viewModel: OrderViewModel,
     orderId: Long
 ) {
-    var products by remember { mutableStateOf<List<Product>>(emptyList()) }
+    val context = LocalContext.current
+    var order by remember { mutableStateOf<Order>(Order()) }
 
 
     LaunchedEffect(Unit) {
-        products = viewModel.getProducts(orderId)
+        order = viewModel.getOrder(orderId)
+    }
+
+    fun toShere() {
+        val file = PdfUtils.getPdfFromOrder(context, order);
+        ShereUtils.sherePdfWithWhatsapp(context, file)
     }
 
     Scaffold (
         topBar = {
             SimpleOrderAppTopBar(
                    stringResource(R.string.order_screen_title).plus(orderId),
-                onGoBackClick = { navController.popBackStack() }
+                onGoBackClick = { navController.popBackStack() },
+                actions = {
+                    IconButton(onClick = {toShere()}) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Share"
+                        )
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -68,7 +87,7 @@ fun ProductListScreen(
         }
     ){ innerPadding ->
         LazyColumn(Modifier.padding(innerPadding)) {
-            items(products) {
+            items(order.products) {
                product -> ProductCard(product)
 
             }
@@ -100,7 +119,7 @@ fun ProductCard(product: Product){
                 .padding(4.dp)
                 .fillMaxWidth(), horizontalAlignment = Alignment.End) {
                 Text(stringResource(R.string.product_card_price), fontWeight = FontWeight.Bold, fontSize = MaterialTheme.typography.titleSmall.fontSize)
-                Text(product.price.toString())
+                Text(product.price.div(100).toString())
             }
         }
     }
