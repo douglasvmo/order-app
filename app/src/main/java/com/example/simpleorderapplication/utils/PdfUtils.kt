@@ -76,6 +76,7 @@ object PdfUtils {
         // Desenha o cabeçalho
         paint.typeface = Typeface.DEFAULT_BOLD
         canvas.drawLine(colQtd, y, colEnd, y, paint) // linha superior
+        var tableYstart = y;
         y += rowHeight
 
         canvas.drawText("Quant.", colQtd + 4f, y - 8f, paint)
@@ -88,16 +89,25 @@ object PdfUtils {
 
 
         order.products.forEach {
-            y += rowHeight
+            val startY = y;
+
+            while (it.description.isNotEmpty()) {
+                y += rowHeight
+                val charsFit = paint.breakText(it.description, true, colPreco - colDesc -15f, null)
+                val line = it.description.substring(0, charsFit)
+                canvas.drawText(line, colDesc + 8f, y -8f, paint)
+                it.description = it.description.substring(charsFit)
+            }
+
+            val middle = startY + (y -startY).div(2) +5f
+            text = "%02d".format(it.quantity)
+            canvas.drawText(text, (colQtd + colDesc - paint.measureText(text)).div(2), middle, paint)
+
+            canvas.drawText(it.description, colDesc + 4f, y - 8f, paint)
+            canvas.drawText("R$ %.2f".format(it.price.div(100.0)), colPreco + 4f, middle, paint)
 
             val subtotal = it.quantity * it.price
-            text = "%02d".format(it.quantity)
-            canvas.drawText(text, (colQtd + colDesc - paint.measureText(text)).div(2), y - 8f, paint)
-            val newY = drawMultilineText(canvas, it.description, colDesc +4f, y - 8f, colPreco - colDesc - 8f, rowHeight, paint)
-            y = newY + 8f
-            canvas.drawText(it.description, colDesc + 4f, y - 8f, paint)
-            canvas.drawText("R$ %.2f".format(it.price.div(100.0)), colPreco + 4f, y - 8f, paint)
-            canvas.drawText("R$ %.2f".format(subtotal.div(100.0)), colSubtotal + 4f, y - 8f, paint)
+            canvas.drawText("R$ %.2f".format(subtotal.div(100.0)), colSubtotal + 4f, middle, paint)
 
             canvas.drawLine(colQtd, y, colEnd, y, paint) // linha inferior da linha atual
 
@@ -113,13 +123,13 @@ object PdfUtils {
         canvas.drawLine(colSubtotal, y, colEnd, y, paint)
 
         // Linhas verticais da tabela
-        val startY = y - ((order.products.size +2) * rowHeight)
-        val endY = y
-        canvas.drawLine(colQtd, startY, colQtd, endY -rowHeight, paint)
-        canvas.drawLine(colDesc, startY, colDesc, endY -rowHeight, paint)
-        canvas.drawLine(colPreco, startY, colPreco, endY -rowHeight, paint)
-        canvas.drawLine(colSubtotal, startY, colSubtotal, endY, paint)
-        canvas.drawLine(colEnd, startY, colEnd, endY, paint)
+        val endY = y - rowHeight
+        canvas.drawLine(colQtd, tableYstart, colQtd, endY, paint)
+        canvas.drawLine(colQtd, tableYstart, colQtd, endY , paint)
+        canvas.drawLine(colDesc, tableYstart, colDesc, endY, paint)
+        canvas.drawLine(colPreco, tableYstart, colPreco, endY, paint)
+        canvas.drawLine(colSubtotal, tableYstart, colSubtotal, y, paint)
+        canvas.drawLine(colEnd, tableYstart, colEnd, y, paint)
 
         pdfDocument.finishPage(page)
 
@@ -130,31 +140,6 @@ object PdfUtils {
 
         pdfDocument.close()
         return file
-    }
-
-    private fun drawMultilineText(
-        canvas: Canvas,
-        text: String,
-        startX: Float,
-        startY: Float,
-        maxWidth: Float,
-        lineHeight: Float,
-        paint: Paint
-    ): Float {
-        var y = startY
-        var textLeft = text
-
-        while (textLeft.isNotEmpty()) {
-            val charsFit = paint.breakText(textLeft, true, maxWidth, null)
-            val line = textLeft.substring(0, charsFit)
-            canvas.drawText(line, startX, y, paint)
-
-            y += lineHeight
-            textLeft = textLeft.substring(charsFit)
-        }
-
-        return y
-
     }
 
 }
