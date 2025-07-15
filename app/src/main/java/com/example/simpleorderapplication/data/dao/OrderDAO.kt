@@ -17,7 +17,7 @@ interface OrderDAO {
     @Delete
     fun delete(order: OrderEntity)
 
-    @Query("SELECT * FROM orders")
+    @Query("SELECT * FROM orders ORDER BY id DESC")
     fun getAll(): List<OrderEntity>
 
     @Transaction
