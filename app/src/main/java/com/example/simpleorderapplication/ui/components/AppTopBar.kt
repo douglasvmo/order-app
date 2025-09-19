@@ -16,7 +16,7 @@ import androidx.compose.runtime.Composable
 @Composable
 fun SimpleOrderAppTopBar(
     title: String = "New Screen",
-    onGoBackClick: (() -> Unit)? = null,
+    navegationIcon: @Composable () -> Unit = {},
     actions: @Composable (RowScope.() -> Unit) = {}
 ) {
     CenterAlignedTopAppBar(
@@ -30,11 +30,7 @@ fun SimpleOrderAppTopBar(
         title = {
             Text(title)
         },
-        navigationIcon = {
-            if (onGoBackClick != null) {
-                GoBackIcon(onGoBackClick)
-            }
-        },
+        navigationIcon = navegationIcon,
         actions = actions
     )
 }

@@ -2,17 +2,17 @@ package com.example.simpleorderapplication.data.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import com.example.simpleorderapplication.data.models.OrderEntity
 import com.example.simpleorderapplication.data.models.OrderWithProducts
 
 @Dao
 interface OrderDAO {
 
-    @Insert
-    fun insert(order: OrderEntity): Long
+    @Upsert
+    fun upsert(order: OrderEntity): Long
 
     @Delete
     fun delete(order: OrderEntity)

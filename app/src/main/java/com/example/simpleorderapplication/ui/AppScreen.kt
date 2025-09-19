@@ -1,7 +1,7 @@
 package com.example.simpleorderapplication.ui
 
 enum class AppScreen(val route: String) {
-    CreateOrder("create/order"),
+    CreateOrder("create/order/{orderId}"),
     OrderList("list/order"),
     OrderDetails("list/order/{orderId}"),
     AddProduct("create/order/{orderId}/product");
@@ -13,5 +13,4 @@ enum class AppScreen(val route: String) {
         }
         return finalRoute
     }
-
 }

@@ -33,7 +33,7 @@ class OrderViewModel(private val database: AppDatabase) : ViewModel() {
 
     suspend fun createNewOrder(order: OrderEntity): OrderEntity = withContext(Dispatchers.IO) {
         runCatching {
-            val orderId = database.getOrderDAO().insert(order)
+            val orderId = database.getOrderDAO().upsert(order)
             order.apply { id = orderId }
         }.getOrElse {
             it.printStackTrace()

@@ -33,8 +33,12 @@ class MainActivity : ComponentActivity() {
                         composable(AppScreen.OrderList.route) {
                             OrderListScreen(navController, viewModel)
                         }
-                        composable(AppScreen.CreateOrder.route) {
-                            CreateOrderScreen(navController, viewModel)
+                        composable(
+                            AppScreen.CreateOrder.route,
+                            arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+                        ) {
+
+                            CreateOrderScreen(navController, viewModel, it.arguments!!.getLong("orderId"))
                         }
                         composable(AppScreen.OrderDetails.route,  arguments = listOf(navArgument("orderId") { type = NavType.LongType })) {
                             ProductListScreen(navController, viewModel, it.arguments!!.getLong("orderId"))

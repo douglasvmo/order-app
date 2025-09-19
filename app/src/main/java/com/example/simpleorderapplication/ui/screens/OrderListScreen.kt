@@ -63,7 +63,7 @@ fun OrderListScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = {navController.navigate(AppScreen.CreateOrder.route)},
+                onClick = {navController.navigate(AppScreen.CreateOrder.withArgs(0))},
                 icon = {Icon(Icons.Default.Add, "Novo Pedido")},
                 text = { Text( "Novo Pedido") },
             )

@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
@@ -18,13 +20,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.simpleorderapplication.R
 import com.example.simpleorderapplication.data.models.ProductEntity
+import com.example.simpleorderapplication.ui.components.GoBackIcon
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
 import com.example.simpleorderapplication.ui.viewmodels.OrderViewModel
 import kotlinx.coroutines.launch
@@ -39,17 +46,24 @@ fun AddProductScreen(navController: NavController, viewModel: OrderViewModel, or
         topBar = {
             SimpleOrderAppTopBar(
                 stringResource(R.string.order_screen_title).plus(" ${orderId}"),
-                onGoBackClick = { navController.popBackStack() }
+                navegationIcon = { GoBackIcon { navController.popBackStack() } }
             )
         }
     ) { innerPadding ->
         ProductForm(
             Modifier.padding(innerPadding),
             onAddProduct = { quantity, description, price ->
+                var priceLong: Long = 0
+                if (price.contains(Regex("[,.]"))) {
+                    priceLong = price.filter { it.isDigit() }.toLong()
+                } else {
+                    priceLong = price.toLong() * 100
+                }
+
                 val product = ProductEntity(
                     quantity = quantity.toInt(),
                     description = description,
-                    price = price.toLong() * 100,
+                    price = priceLong,
                     orderId = orderId
                 )
 
@@ -73,6 +87,9 @@ fun ProductForm(
     var description by remember { mutableStateOf("") }
     var price by remember { mutableStateOf("") }
 
+    val descriptionFousRequester = remember { FocusRequester() }
+    val priceFousRequester = remember { FocusRequester() }
+
     Column(
         modifier = modifier
             .padding(16.dp)
@@ -88,19 +105,39 @@ fun ProductForm(
             modifier = Modifier.fillMaxWidth(),
             value = quantity,
             onValueChange = { quantity = it },
-            label = { Text(stringResource(R.string.product_card_quant)) }
+            label = { Text(stringResource(R.string.product_card_quant)) },
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(
+                onNext = {
+                    descriptionFousRequester.requestFocus()
+                }
+            )
         )
         TextField(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().focusRequester(descriptionFousRequester),
             value = description,
             onValueChange = { description = it },
-            label = { Text(stringResource(R.string.product_card_description)) }
+            label = { Text(stringResource(R.string.product_card_description)) },
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(
+                onNext = {
+                    priceFousRequester.requestFocus()
+                }
+            )
         )
         TextField(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().focusRequester(priceFousRequester),
             value = price,
             onValueChange = { price = it },
-            label = { Text(stringResource(R.string.product_card_price)) }
+            label = { Text(stringResource(R.string.product_card_price)) },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    onAddProduct(quantity, description, price)
+                }
+            )
+
+
         )
         FilledTonalButton(
             onClick = {
