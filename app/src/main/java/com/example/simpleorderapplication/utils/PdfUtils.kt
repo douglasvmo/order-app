@@ -1,17 +1,12 @@
 package com.example.simpleorderapplication.utils
 
 import android.content.Context
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
-import com.example.simpleorderapplication.domain.Order
-
+import com.example.simpleorderapplication.data.models.Order
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Locale
-import androidx.core.graphics.withRotation
 
 
 object PdfUtils {
@@ -55,14 +50,14 @@ object PdfUtils {
 
         y+= 40f
         paint.textSize = 18f
-        text = "Pedido Nº ${order.id}"
+        text = "Pedido Nº ${order.code.toString()}"
         canvas.drawText(text, (width - paint.measureText(text)).div(2),y, paint)
 
         y += 25f
         paint.textSize = 14f
         canvas.drawText("Cliente: ${order.clientName}", 25f, y, paint)
         y += 25f
-        canvas.drawText("Data: ${Formater.dateToString(order.date)}", 25f, y, paint)
+        canvas.drawText("Data: ${order.createdAt.toFormattedDate()}", 25f, y, paint)
         y += 40f
 
         // Cabeçalhos da tabela
@@ -103,11 +98,12 @@ object PdfUtils {
             text = "%02d".format(it.quantity)
             canvas.drawText(text, (colQtd + colDesc - paint.measureText(text)).div(2), middle, paint)
 
+            val price = it.priceCents.div(100.0)
             canvas.drawText(it.description, colDesc + 4f, y - 8f, paint)
-            canvas.drawText("R$ %.2f".format(it.price.div(100.0)), colPreco + 4f, middle, paint)
+            canvas.drawText("R$ %.2f".format(price), colPreco + 4f, middle, paint)
 
-            val subtotal = it.quantity * it.price
-            canvas.drawText("R$ %.2f".format(subtotal.div(100.0)), colSubtotal + 4f, middle, paint)
+            val subtotal = it.quantity * price
+            canvas.drawText("R$ %.2f".format(subtotal), colSubtotal + 4f, middle, paint)
 
             canvas.drawLine(colQtd, y, colEnd, y, paint) // linha inferior da linha atual
 
@@ -116,7 +112,7 @@ object PdfUtils {
         text = "Total"
         paint.typeface = Typeface.DEFAULT_BOLD
         canvas.drawText("Total", colSubtotal -4f -paint.measureText(text),y -8f, paint)
-        canvas.drawText("R$ %.2f".format(order.amount.div(100.0)),colSubtotal +4f, y -8f, paint)
+        canvas.drawText("R$ %.2f".format(order.products.sumOf { it.priceCents.div(100.0) * it.quantity }),colSubtotal +4f, y -8f, paint)
         paint.typeface = Typeface.DEFAULT_BOLD
 
         // the last horizontal line
@@ -133,7 +129,7 @@ object PdfUtils {
 
         pdfDocument.finishPage(page)
 
-        val file = File(context.cacheDir, "pedido_${order.id}.pdf")
+        val file = File(context.cacheDir, "pedido_${order.id.toString()}.pdf")
         file.outputStream().use {
             pdfDocument.writeTo(it)
         }

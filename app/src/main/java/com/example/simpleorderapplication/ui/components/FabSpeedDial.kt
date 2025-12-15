@@ -37,7 +37,10 @@ fun FabSpeedDial(
 
             AnimatedVisibility(visible = expanded) {
                 ExtendedFloatingActionButton(
-                    onClick = onClickAdd,
+                    onClick = {
+                        expanded = false
+                        onClickAdd()
+                    },
                     icon = { Icon(Icons.Default.Add, contentDescription = "Add") },
                     text = { Text("Novo item") }
                 )

@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.realm)
     id("com.google.devtools.ksp")
 }
 
@@ -43,6 +44,11 @@ android {
 dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.realm.kotlin.library.base)
+    implementation(libs.android.koin)
+    implementation(libs.android.koin.compose)
+
+
     val room_version = "2.6.1"
 
     implementation("androidx.room:room-runtime:$room_version")
