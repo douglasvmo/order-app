@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +34,6 @@ import androidx.navigation.NavController
 import com.example.simpleorderapplication.R
 import com.example.simpleorderapplication.data.models.Product
 import com.example.simpleorderapplication.ui.components.CreateProductBottomSheet
-import com.example.simpleorderapplication.ui.components.FabSpeedDial
 import com.example.simpleorderapplication.ui.components.GoBackIcon
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
 import com.example.simpleorderapplication.utils.PdfUtils
@@ -49,8 +50,11 @@ fun OrderProductsScreen(
     val state by viewModel.state.collectAsState()
 
     fun toShere() {
-        val file = PdfUtils.getPdfFromOrder(context, state.order!!);
-        ShereUtils.sherePdfWithWhatsapp(context, file)
+        val order = viewModel.getUnmanagedOrder();
+        if(order != null) {
+            val file = PdfUtils.getPdfFromOrder(context, order);
+            ShereUtils.sherePdfWithWhatsapp(context, file)
+        }
     }
 
     Scaffold (
@@ -69,17 +73,14 @@ fun OrderProductsScreen(
             )
         },
         floatingActionButton = {
-            FabSpeedDial(
-                onClickEdit = {
-
-                },
-                onClickShare = {
-                    toShere()
-                },
-                onClickAdd = {
+            ExtendedFloatingActionButton (
+                onClick = {
                     viewModel.dispatch(OrderProductIntent.ToggleModal)
-                }
+                },
+                icon = {Icon(Icons.Default.Add, "Novo Item")},
+                text = {Text("Novo Item")}
             )
+
         }
     ){ innerPadding ->
         LazyColumn(Modifier.padding(innerPadding), contentPadding = PaddingValues(4.dp)) {

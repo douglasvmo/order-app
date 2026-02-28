@@ -15,7 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -79,7 +79,13 @@ fun CreateProductBottomSheet(
                             .fillMaxWidth()
                             .focusRequester(focusDescription),
                         keyboardOptions = KeyboardOptions(
-                            capitalization = KeyboardCapitalization.Sentences
+                            capitalization = KeyboardCapitalization.Sentences,
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                step = CreateProductStep.Quantity
+                            }
                         ),
                         textStyle = MaterialTheme.typography.displaySmall
                     )
@@ -115,10 +121,11 @@ fun CreateProductBottomSheet(
                             .fillMaxWidth()
                             .focusRequester(focusQuantity),
                         keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Next
                         ),
                         keyboardActions = KeyboardActions(
-                            onDone = {
+                            onNext = {
                                 step = CreateProductStep.Price
                             }
                         ),
@@ -161,7 +168,8 @@ fun CreateProductBottomSheet(
                             .fillMaxWidth()
                             .focusRequester(focusPrice),
                         keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Decimal
+                            keyboardType = KeyboardType.Decimal,
+                            imeAction = ImeAction.Done
                         ),
                         keyboardActions = KeyboardActions(
                             onDone = {

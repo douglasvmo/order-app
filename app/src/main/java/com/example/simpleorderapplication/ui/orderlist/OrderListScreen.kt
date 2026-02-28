@@ -88,7 +88,6 @@ fun OrderListScreen(
             items(state.orders) { order ->
                 OrderCard(order) {
                     viewModel.dispath(OrderListIntent.OrderSelect(order.id.toString()))
-
                 }
             }
 

@@ -2,6 +2,7 @@ package com.example.simpleorderapplication.ui.orderproducts
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.simpleorderapplication.data.models.Order
 import com.example.simpleorderapplication.data.models.Product
 import com.example.simpleorderapplication.data.repository.OrderRepository
 import io.realm.kotlin.types.RealmUUID
@@ -29,6 +30,7 @@ class OrderProductsViewModel( private  val repository: OrderRepository) : ViewMo
                 repository.observeSingleOrder(orderId)
             }.onSuccess { flow ->
                 flow.collect { order ->
+
                     _state.update {
                         it.copy(
                             isLoading = false,
@@ -81,6 +83,11 @@ class OrderProductsViewModel( private  val repository: OrderRepository) : ViewMo
         _state.update { it.copy(showModal = !it.showModal) }
     }
 
+    fun getUnmanagedOrder(): Order? {
+        return state.value.order?.let { managedOrder ->
+            repository.detach(managedOrder)
+        }
+    }
 
 
 }

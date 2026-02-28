@@ -95,7 +95,7 @@ object PdfUtils {
             }
 
             val middle = startY + (y -startY).div(2) +5f
-            text = "%02d".format(it.quantity)
+            text = "%02d".format(it.quantity.toInt())
             canvas.drawText(text, (colQtd + colDesc - paint.measureText(text)).div(2), middle, paint)
 
             val price = it.priceCents.div(100.0)

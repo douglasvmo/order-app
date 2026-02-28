@@ -64,4 +64,11 @@ class OrderRepository(private val realm: Realm) {
         }
     }
 
+
+    fun <T : io.realm.kotlin.types.TypedRealmObject> detach(obj: T): T {
+        return realm.copyFromRealm(obj)
+    }
+
+
+
 }
