@@ -41,7 +41,7 @@ fun CreateOrderBottomSheet(
         ) {
             when (step) {
                 CreateOrderStep.ClientName -> {
-                    Text("Nome do Cliente", style = MaterialTheme.typography.titleMedium)
+                    Text("Nome do Cliente", style = MaterialTheme.typography.titleLarge)
                     Spacer(Modifier.height(8.dp))
                     OutlinedTextField(
                         value = clientName,

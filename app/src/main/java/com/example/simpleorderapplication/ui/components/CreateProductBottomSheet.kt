@@ -52,6 +52,16 @@ fun CreateProductBottomSheet(
 
     val focusManager = LocalFocusManager.current
 
+    fun create(){
+        focusManager.clearFocus(force = true)
+        onCreateProduct(
+            description,
+            quantity,
+            price,
+        )
+        onDismiss()
+    }
+
     ModalBottomSheet(
         onDismissRequest = onDismiss
     ) {
@@ -74,7 +84,7 @@ fun CreateProductBottomSheet(
                     OutlinedTextField(
                         value = description,
                         onValueChange = { description = it },
-                        label = { Text("Descrição", style =  MaterialTheme.typography.titleMedium) },
+                        label = { Text("Descrição", style =  MaterialTheme.typography.titleLarge) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .focusRequester(focusDescription),
@@ -84,7 +94,7 @@ fun CreateProductBottomSheet(
                         ),
                         keyboardActions = KeyboardActions(
                             onNext = {
-                                step = CreateProductStep.Quantity
+                                step = CreateProductStep.Price
                             }
                         ),
                         textStyle = MaterialTheme.typography.displaySmall
@@ -96,7 +106,7 @@ fun CreateProductBottomSheet(
                             enabled = description.isNotEmpty(),
                             onClick = {
                                 if(description.isBlank()) return@Button
-                                step = CreateProductStep.Quantity
+                                step = CreateProductStep.Price
                             }
                         ){
                             Text("Avançar", style = MaterialTheme.typography.titleMedium)
@@ -126,7 +136,7 @@ fun CreateProductBottomSheet(
                         ),
                         keyboardActions = KeyboardActions(
                             onNext = {
-                                step = CreateProductStep.Price
+                               create()
                             }
                         ),
                         textStyle = MaterialTheme.typography.displaySmall
@@ -136,7 +146,7 @@ fun CreateProductBottomSheet(
                         Button(
                             modifier = Modifier.padding(14.dp),
                             onClick = {
-                                step = CreateProductStep.Description
+                                step = CreateProductStep.Price
                             }
                         ) {
                             Text("Voltar", style = MaterialTheme.typography.titleMedium)
@@ -144,10 +154,10 @@ fun CreateProductBottomSheet(
                         Button(
                             modifier = Modifier.padding(14.dp),
                             onClick = {
-                                step = CreateProductStep.Price
+                                create()
                             }
                         ) {
-                            Text("Avançar", style = MaterialTheme.typography.titleMedium)
+                            Text("Finalizar", style = MaterialTheme.typography.titleMedium)
                         }
 
                     }
@@ -173,13 +183,8 @@ fun CreateProductBottomSheet(
                         ),
                         keyboardActions = KeyboardActions(
                             onDone = {
-                                focusManager.clearFocus(force = true)
-                                onCreateProduct(
-                                    description,
-                                    quantity,
-                                    price,
-                                )
-                                onDismiss()
+                                step = CreateProductStep.Quantity
+
                             }
                         ),
                         textStyle = MaterialTheme.typography.displaySmall
@@ -197,16 +202,10 @@ fun CreateProductBottomSheet(
                         Button(
                             modifier = Modifier.padding(14.dp),
                             onClick = {
-                                focusManager.clearFocus(force = true)
-                                onCreateProduct(
-                                    description,
-                                    quantity,
-                                    price,
-                                )
-                                onDismiss()
+                               step = CreateProductStep.Quantity
                             }
                         ){
-                            Text("Finalizar", style = MaterialTheme.typography.titleMedium)
+                            Text("Avançar", style = MaterialTheme.typography.titleMedium)
                         }
                     }
 

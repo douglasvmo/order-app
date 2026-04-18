@@ -32,16 +32,19 @@ class OrderRepository(private val realm: Realm) {
            .map { it.obj }
     }
 
-    suspend fun createOrder(order: Order){
-        realm.write {
+    suspend fun createOrder(order: Order): String {
+        return realm.write {
             val count = realm.query<Order>()
                 .sort("id")
                 .count()
                 .find()
 
-            copyToRealm(order.apply {
+            val managedOrder = copyToRealm(order.apply {
                 code = (count.toInt() + 1)
             })
+
+            managedOrder.id.toString()
+
         }
     }
 

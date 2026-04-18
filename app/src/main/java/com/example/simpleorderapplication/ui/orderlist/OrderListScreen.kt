@@ -1,6 +1,7 @@
 package com.example.simpleorderapplication.ui.orderlist
 
 import CreateOrderBottomSheet
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.simpleorderapplication.R
 import com.example.simpleorderapplication.ui.components.OrderCard
@@ -63,7 +65,7 @@ fun OrderListScreen(
             )
         }
     ) { paddingValues ->
-        LazyColumn(Modifier.padding(paddingValues)) {
+        LazyColumn(Modifier.padding(paddingValues), verticalArrangement = Arrangement.spacedBy(5.dp)) {
             if(state.erro !== null) {
                 item {
                     Text(

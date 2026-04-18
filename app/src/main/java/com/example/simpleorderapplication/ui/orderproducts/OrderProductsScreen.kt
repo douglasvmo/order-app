@@ -1,14 +1,20 @@
 package com.example.simpleorderapplication.ui.orderproducts
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Share
@@ -24,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -108,34 +115,56 @@ fun OrderProductsScreen(
 }
 
 @Composable
-fun ProductCard(product: Product){
+fun ProductCard(product: Product) {
     Card(
-        Modifier.padding(4.dp),
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         )
     ) {
-        Row(modifier = Modifier
-            .padding(4.dp)
-            .fillMaxSize(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Column(modifier = Modifier
-                .padding(14.dp, 4.dp)
-                .fillMaxWidth(0.08f)) {
-                Text(stringResource(R.string.product_card_quant), fontWeight = FontWeight.Bold, fontSize = MaterialTheme.typography.titleMedium.fontSize)
-                Text(product.quantity.toString(), fontSize = MaterialTheme.typography.bodyLarge.fontSize)
-            }
-            Column(modifier = Modifier
-                .padding(4.dp)
-                .fillMaxSize(0.7f)) {
-                Text(stringResource(R.string.product_card_description), fontWeight = FontWeight.Bold, fontSize = MaterialTheme.typography.titleMedium.fontSize)
-                Text(product.description, fontSize = MaterialTheme.typography.bodyLarge.fontSize, maxLines = 1, overflow = TextOverflow.Clip)
-            }
-            Column(modifier = Modifier
-                .padding(4.dp)
+        Row(
+            modifier = Modifier
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            // Quantidade (badge)
+            Box(
+                modifier = Modifier
+                    .size(40.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Text(stringResource(R.string.product_card_price), fontWeight = FontWeight.Bold, fontSize = MaterialTheme.typography.titleMedium.fontSize)
-                Text("R$ %.2f".format(product.priceCents.div(100.0)), fontSize = MaterialTheme.typography.bodyLarge.fontSize)
+                Text(
+                    text = product.quantity.toInt().toString(),
+                    fontWeight = FontWeight.Bold
+                )
             }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Descrição (principal)
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = product.description,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Preço
+            Text(
+                text = "R$ %.2f".format(product.priceCents / 100.0),
+                fontWeight = FontWeight.Bold,
+                fontSize = MaterialTheme.typography.titleMedium.fontSize
+            )
         }
     }
 }

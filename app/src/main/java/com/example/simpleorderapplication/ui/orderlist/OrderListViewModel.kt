@@ -60,7 +60,11 @@ class OrderListViewModel(private val repository: OrderRepository): ViewModel() {
                         clientCode = intent.clientCPF
                     }
                 )
-            }.onFailure {
+            }
+                .onSuccess { it
+                    selectOrder(it)
+                }
+                .onFailure {
                 _state.update { it.copy(erro = it.erro, isLoading = false) }
             }
         }

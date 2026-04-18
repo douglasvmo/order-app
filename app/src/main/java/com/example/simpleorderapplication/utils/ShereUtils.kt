@@ -13,14 +13,14 @@ object ShereUtils {
         val shereIntent = Intent(Intent.ACTION_SEND).apply {
             type = "application/pdf"
             putExtra(Intent.EXTRA_STREAM, uri)
-            setPackage("com.whatsapp")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
 
         try {
+            shereIntent.setPackage("com.whatsapp")
             context.startActivity(shereIntent)
         } catch (e: ActivityNotFoundException) {
-            Toast.makeText(context, "Whatsapp não instalado", Toast.LENGTH_SHORT).show()
+            context.startActivity(Intent.createChooser(shereIntent, "Compartilhar PDF"))
         }
     }
 }

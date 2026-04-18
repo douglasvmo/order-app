@@ -17,11 +17,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.simpleorderapplication.R
 import com.example.simpleorderapplication.data.models.Order
+import com.example.simpleorderapplication.data.models.Product
 import com.example.simpleorderapplication.utils.toFormattedDate
+import io.realm.kotlin.ext.realmListOf
+import io.realm.kotlin.types.RealmInstant
+import io.realm.kotlin.types.RealmList
+import io.realm.kotlin.types.RealmUUID
 
 @Composable
 fun OrderCard(order: Order, onClick: () -> Unit) {
@@ -39,7 +45,7 @@ fun OrderCard(order: Order, onClick: () -> Unit) {
         ),
     ) {
         Row(Modifier.padding(4.dp)) {
-            Column(Modifier.fillMaxWidth(0.85f).padding(10.dp)) {
+            Column(Modifier.fillMaxWidth(0.85f).padding(15.dp)) {
                 Row( verticalAlignment = Alignment.Bottom) {
                     Text(stringResource(R.string.order_card_order_number))
                     Text(order.code.toString(), Modifier.padding(horizontal = 4.dp), fontSize = 16.sp)
@@ -59,4 +65,18 @@ fun OrderCard(order: Order, onClick: () -> Unit) {
         }
 
     }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewOrderCard(){
+    OrderCard(
+        Order().apply {
+            code = 1
+            clientName = "Doug"
+            createdAt = RealmInstant.now()
+            products = realmListOf<Product>()
+        }
+    ) { }
 }
