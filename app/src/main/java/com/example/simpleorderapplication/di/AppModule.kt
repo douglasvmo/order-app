@@ -3,8 +3,7 @@ package com.example.simpleorderapplication.di
 import com.example.simpleorderapplication.data.models.Order
 import com.example.simpleorderapplication.data.models.Product
 import com.example.simpleorderapplication.data.repository.OrderRepository
-import com.example.simpleorderapplication.ui.orderlist.OrderListViewModel
-import com.example.simpleorderapplication.ui.orderproducts.OrderProductsViewModel
+import com.example.simpleorderapplication.ui.order.OrderViewModel
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -29,7 +28,5 @@ val repositoryModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { OrderListViewModel(get()) }
-
-    viewModel { OrderProductsViewModel( get()) }
+    viewModel { OrderViewModel(get()) }
 }

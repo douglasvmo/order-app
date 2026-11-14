@@ -85,13 +85,14 @@ object PdfUtils {
 
         order.products.forEach {
             val startY = y;
+            var description = it.description.trim()
 
-            while (it.description.isNotEmpty()) {
+            while (description.isNotEmpty()) {
                 y += rowHeight
-                val charsFit = paint.breakText(it.description, true, colPreco - colDesc -15f, null)
-                val line = it.description.substring(0, charsFit)
+                val charsFit = paint.breakText(description, true, colPreco - colDesc -15f, null)
+                val line = description.take(charsFit)
                 canvas.drawText(line, colDesc + 8f, y -8f, paint)
-                it.description = it.description.substring(charsFit)
+                description = description.substring(charsFit)
             }
 
             val middle = startY + (y -startY).div(2) +5f
@@ -99,7 +100,7 @@ object PdfUtils {
             canvas.drawText(text, (colQtd + colDesc - paint.measureText(text)).div(2), middle, paint)
 
             val price = it.priceCents.div(100.0)
-            canvas.drawText(it.description, colDesc + 4f, y - 8f, paint)
+            canvas.drawText(description, colDesc + 4f, y - 8f, paint)
             canvas.drawText("R$ %.2f".format(price), colPreco + 4f, middle, paint)
 
             val subtotal = it.quantity * price

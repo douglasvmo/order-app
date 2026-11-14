@@ -1,4 +1,4 @@
-package com.example.simpleorderapplication.ui.orderlist
+package com.example.simpleorderapplication.ui.screens
 
 import CreateOrderBottomSheet
 import androidx.compose.foundation.layout.Arrangement
@@ -14,8 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,20 +21,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.simpleorderapplication.R
+import com.example.simpleorderapplication.data.models.Order
+import com.example.simpleorderapplication.data.models.Product
 import com.example.simpleorderapplication.ui.components.OrderCard
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
-import org.koin.androidx.compose.koinViewModel
+import com.example.simpleorderapplication.ui.order.OrderAction
+import com.example.simpleorderapplication.ui.order.OrderState
 
 
 @Composable
 fun OrderListScreen(
-    navController: NavController,
-    viewModel: OrderListViewModel = koinViewModel()
-) {
-    val state by viewModel.state.collectAsState()
+    state: OrderState,
+    onAction: (OrderAction) -> Unit,
+
+    ) {
 
     var showModal by remember { mutableStateOf(false) }
 
@@ -44,9 +45,7 @@ fun OrderListScreen(
     if (showModal) {
         CreateOrderBottomSheet(
             onDismiss = { showModal = false },
-            onCreateOrder = { clientName, clientPhone, clientCPF ->
-                viewModel.dispath(OrderListIntent.CreateOrder(clientName, clientPhone, clientCPF))
-            }
+            onCreateOrder = { clientName, clientPhone, clientCPF ->  onAction(OrderAction.CreateOrder(clientName, clientPhone, clientCPF)) }
         )
     }
 
@@ -69,7 +68,7 @@ fun OrderListScreen(
             if(state.erro !== null) {
                 item {
                     Text(
-                        text = state.erro!!,
+                        text = state.erro,
                         modifier = Modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.error,
                         textAlign = TextAlign.Center
@@ -89,24 +88,52 @@ fun OrderListScreen(
 
             items(state.orders) { order ->
                 OrderCard(order) {
-                    viewModel.dispath(OrderListIntent.OrderSelect(order.id.toString()))
-                }
-            }
-
-        }
-
-        LaunchedEffect(Unit) {
-            viewModel.dispath(OrderListIntent.LoadOrders)
-        }
-
-        LaunchedEffect(Unit) {
-            viewModel.effect.collect { effect ->
-                when (effect){
-                    is OrderListEffect.NavigateToOrderProducts -> navController.navigate("orders/${effect.orderId}/products")
+                    onAction(OrderAction.SelectOrder(order.id.toString()))
                 }
             }
         }
-
-
     }
+}
+
+@Preview
+@Composable
+fun OrderListScreenPreview(){
+    val state = OrderState(
+        orders = listOf(
+            Order()
+                .apply {
+                    code = 10
+                    clientName = "Maria Aparecida"
+                    products.add(
+                        Product().apply {
+                            priceCents = 20000
+                            quantity = 12.0
+                        }
+                    )
+                },
+            Order()
+                .apply {
+                    code = 9
+                    clientName = "Joaquim Jose da Silva Xavier"
+                    products.add(
+                        Product().apply {
+                            priceCents = 20000
+                            quantity = 12.0
+                        }
+                    )
+                    products.add(
+                        Product().apply {
+                            priceCents = 500000
+                        }
+                    )
+                }
+
+        )
+    )
+
+    OrderListScreen(
+        state,
+        {}
+    )
+
 }

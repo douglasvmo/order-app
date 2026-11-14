@@ -44,11 +44,20 @@ fun OrderCard(order: Order, onClick: () -> Unit) {
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
         ),
     ) {
-        Row(Modifier.padding(4.dp)) {
-            Column(Modifier.fillMaxWidth(0.85f).padding(15.dp)) {
+        Row(Modifier.fillMaxWidth().padding( 15.dp), horizontalArrangement = Arrangement.SpaceBetween){
+            Column() {
+                Row() {
+                Text(stringResource(R.string.order_card_order_number))
+                Text(order.code.toString(), Modifier.padding(horizontal = 4.dp), fontSize = 16.sp)
+                }
+            }
+            Column() {
+                Text(order.products.sumOf { it.priceCents.div(100.0) * it.quantity }.let { "%.2f".format(it) } , fontSize = 16.sp)
+            }
+        }
+        Row() {
+            Column(Modifier.fillMaxWidth().padding(start = 15.dp, bottom = 15.dp)) {
                 Row( verticalAlignment = Alignment.Bottom) {
-                    Text(stringResource(R.string.order_card_order_number))
-                    Text(order.code.toString(), Modifier.padding(horizontal = 4.dp), fontSize = 16.sp)
                 }
                 Row {
                     Text(stringResource(R.string.order_card_client_name))
@@ -58,9 +67,6 @@ fun OrderCard(order: Order, onClick: () -> Unit) {
                     Text(stringResource(R.string.order_card_date))
                     Text(order.createdAt.toFormattedDate(), Modifier.padding(horizontal = 4.dp))
                 }
-            }
-            Column(Modifier.fillMaxWidth(), Arrangement.Top, Alignment.CenterHorizontally) {
-                Text(order.products.sumOf { it.priceCents.div(100.0) * it.quantity }.let { "%.2f".format(it) } , fontSize = 12.sp)
             }
         }
 

@@ -1,20 +1,16 @@
-package com.example.simpleorderapplication.ui.orderproducts
+package com.example.simpleorderapplication.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Share
@@ -27,50 +23,42 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.simpleorderapplication.R
+import com.example.simpleorderapplication.data.models.Order
 import com.example.simpleorderapplication.data.models.Product
 import com.example.simpleorderapplication.ui.components.CreateProductBottomSheet
 import com.example.simpleorderapplication.ui.components.GoBackIcon
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
-import com.example.simpleorderapplication.utils.PdfUtils
-import com.example.simpleorderapplication.utils.ShereUtils
-import org.koin.androidx.compose.koinViewModel
+import com.example.simpleorderapplication.ui.order.OrderAction
+import com.example.simpleorderapplication.ui.order.OrderState
 
 @Composable
 fun OrderProductsScreen(
-    navController: NavController,
-    viewModel: OrderProductsViewModel = koinViewModel(),
-    orderId: String
+  state: OrderState,
+  onAction: (OrderAction) -> Unit
 ) {
-    val context = LocalContext.current
-    val state by viewModel.state.collectAsState()
 
-    fun toShere() {
-        val order = viewModel.getUnmanagedOrder();
-        if(order != null) {
-            val file = PdfUtils.getPdfFromOrder(context, order);
-            ShereUtils.sherePdfWithWhatsapp(context, file)
-        }
-    }
+    var showModal by remember { mutableStateOf(false) }
+
 
     Scaffold (
         topBar = {
             SimpleOrderAppTopBar(
-                   stringResource(R.string.order_screen_title).plus(state.order?.code.toString()),
-                navegationIcon = { GoBackIcon { navController.popBackStack() } },
+                   stringResource(R.string.order_screen_title).plus(state.currentOrder?.code.toString()),
+                navegationIcon = { GoBackIcon {onAction(OrderAction.GoBackOrders) } },
                 actions = {
-                    IconButton(onClick = {toShere()}) {
+                    IconButton(onClick = {onAction(OrderAction.Shere)}) {
                         Icon(
                             imageVector = Icons.Default.Share,
                             contentDescription = "Share"
@@ -82,7 +70,7 @@ fun OrderProductsScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton (
                 onClick = {
-                    viewModel.dispatch(OrderProductIntent.ToggleModal)
+                    showModal = true
                 },
                 icon = {Icon(Icons.Default.Add, "Novo Item")},
                 text = {Text("Novo Item")}
@@ -91,26 +79,22 @@ fun OrderProductsScreen(
         }
     ){ innerPadding ->
         LazyColumn(Modifier.padding(innerPadding), contentPadding = PaddingValues(4.dp)) {
-            if(state.order !== null) {
-                items(state.order!!.products) { product ->
+            if(state.currentOrder !== null) {
+                items(state.currentOrder.products) { product ->
                     ProductCard(product)
                 }
             }
         }
 
-        if(state.showModal){
+        if(showModal){
             CreateProductBottomSheet(
-                onDismiss = { viewModel.dispatch(OrderProductIntent.ToggleModal) },
+                onDismiss = { showModal = false },
                 onCreateProduct = { description, quantity, price ->
-                    viewModel.dispatch(OrderProductIntent.AddProduct(description, price, quantity))
+                    onAction(OrderAction.AddProduct(description, price, quantity))
                 }
             )
         }
 
-    }
-
-    LaunchedEffect(Unit){
-        viewModel.dispatch(OrderProductIntent.LoadProducts(orderId))
     }
 }
 
@@ -149,7 +133,7 @@ fun ProductCard(product: Product) {
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = product.description,
+                    text = product.description.trim(),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                     maxLines = 2,
@@ -167,4 +151,30 @@ fun ProductCard(product: Product) {
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun OrderProductListPreview() {
+    val state = OrderState(
+        currentOrder = Order().apply {
+            code = 10
+            products.add(
+                Product().apply {
+                    description = "Parteleira MDF\n\n"
+                    priceCents = 5000
+                    quantity = 2.0
+                })
+            products.add(
+                Product().apply {
+                    description = "Mesa trabalho em MDF"
+                    priceCents = 100000
+                })
+        }
+    )
+
+    OrderProductsScreen(
+        state,
+        {}
+    )
 }
