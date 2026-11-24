@@ -21,13 +21,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.simpleorderapplication.R
-import com.example.simpleorderapplication.data.models.Order
-import com.example.simpleorderapplication.data.models.Product
-import com.example.simpleorderapplication.utils.toFormattedDate
-import io.realm.kotlin.ext.realmListOf
-import io.realm.kotlin.types.RealmInstant
-import io.realm.kotlin.types.RealmList
-import io.realm.kotlin.types.RealmUUID
+import com.example.simpleorderapplication.domain.Order
+import com.example.simpleorderapplication.domain.Product
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun OrderCard(order: Order, onClick: () -> Unit) {
@@ -65,7 +61,7 @@ fun OrderCard(order: Order, onClick: () -> Unit) {
                 }
                 Row {
                     Text(stringResource(R.string.order_card_date))
-                    Text(order.createdAt.toFormattedDate(), Modifier.padding(horizontal = 4.dp))
+                    Text(order.createAt?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")).orEmpty(), Modifier.padding(horizontal = 4.dp))
                 }
             }
         }
@@ -78,11 +74,13 @@ fun OrderCard(order: Order, onClick: () -> Unit) {
 @Composable
 fun PreviewOrderCard(){
     OrderCard(
-        Order().apply {
-            code = 1
-            clientName = "Doug"
-            createdAt = RealmInstant.now()
-            products = realmListOf<Product>()
-        }
+        Order(
+            id = "order-preview",
+            code = "1",
+            clientName = "Doug",
+            clientCode = null,
+            clientPhone = null,
+            products = emptyList()
+        )
     ) { }
 }

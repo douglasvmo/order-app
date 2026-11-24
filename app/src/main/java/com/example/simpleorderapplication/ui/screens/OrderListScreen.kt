@@ -24,8 +24,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.simpleorderapplication.R
-import com.example.simpleorderapplication.data.models.Order
-import com.example.simpleorderapplication.data.models.Product
+import com.example.simpleorderapplication.domain.Order
+import com.example.simpleorderapplication.domain.Product
 import com.example.simpleorderapplication.ui.components.OrderCard
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
 import com.example.simpleorderapplication.ui.order.OrderAction
@@ -100,34 +100,25 @@ fun OrderListScreen(
 fun OrderListScreenPreview(){
     val state = OrderState(
         orders = listOf(
-            Order()
-                .apply {
-                    code = 10
-                    clientName = "Maria Aparecida"
-                    products.add(
-                        Product().apply {
-                            priceCents = 20000
-                            quantity = 12.0
-                        }
-                    )
-                },
-            Order()
-                .apply {
-                    code = 9
-                    clientName = "Joaquim Jose da Silva Xavier"
-                    products.add(
-                        Product().apply {
-                            priceCents = 20000
-                            quantity = 12.0
-                        }
-                    )
-                    products.add(
-                        Product().apply {
-                            priceCents = 500000
-                        }
-                    )
-                }
-
+            Order(
+                id = "order-1",
+                code = "10",
+                clientName = "Maria Aparecida",
+                clientCode = null,
+                clientPhone = null,
+                products = listOf(Product("product-1", "Produto", 12.0, 20000))
+            ),
+            Order(
+                id = "order-2",
+                code = "9",
+                clientName = "Joaquim Jose da Silva Xavier",
+                clientCode = null,
+                clientPhone = null,
+                products = listOf(
+                    Product("product-2", "Produto", 12.0, 20000),
+                    Product("product-3", "Outro produto", 1.0, 500000)
+                )
+            )
         )
     )
 

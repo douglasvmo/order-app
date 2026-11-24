@@ -5,8 +5,9 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
-import com.example.simpleorderapplication.data.models.Order
+import com.example.simpleorderapplication.domain.Order
 import java.io.File
+import java.time.format.DateTimeFormatter
 
 
 object PdfUtils {
@@ -57,7 +58,8 @@ object PdfUtils {
         paint.textSize = 14f
         canvas.drawText("Cliente: ${order.clientName}", 25f, y, paint)
         y += 25f
-        canvas.drawText("Data: ${order.createdAt.toFormattedDate()}", 25f, y, paint)
+        val formattedDate = order.createAt?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")).orEmpty()
+        canvas.drawText("Data: $formattedDate", 25f, y, paint)
         y += 40f
 
         // Cabeçalhos da tabela

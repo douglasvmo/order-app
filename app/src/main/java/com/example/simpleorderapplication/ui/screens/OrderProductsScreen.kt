@@ -35,8 +35,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.simpleorderapplication.R
-import com.example.simpleorderapplication.data.models.Order
-import com.example.simpleorderapplication.data.models.Product
+import com.example.simpleorderapplication.domain.Order
+import com.example.simpleorderapplication.domain.Product
 import com.example.simpleorderapplication.ui.components.CreateProductBottomSheet
 import com.example.simpleorderapplication.ui.components.GoBackIcon
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
@@ -157,20 +157,17 @@ fun ProductCard(product: Product) {
 @Composable
 fun OrderProductListPreview() {
     val state = OrderState(
-        currentOrder = Order().apply {
-            code = 10
-            products.add(
-                Product().apply {
-                    description = "Parteleira MDF\n\n"
-                    priceCents = 5000
-                    quantity = 2.0
-                })
-            products.add(
-                Product().apply {
-                    description = "Mesa trabalho em MDF"
-                    priceCents = 100000
-                })
-        }
+        currentOrder = Order(
+            id = "order-preview",
+            code = "10",
+            clientName = "Cliente",
+            clientCode = null,
+            clientPhone = null,
+            products = listOf(
+                Product("product-1", "Parteleira MDF", 2.0, 5000),
+                Product("product-2", "Mesa trabalho em MDF", 1.0, 100000)
+            )
+        )
     )
 
     OrderProductsScreen(

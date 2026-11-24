@@ -1,6 +1,7 @@
 package com.example.simpleorderapplication.ui.order
 
-import com.example.simpleorderapplication.data.models.Order
+import com.example.simpleorderapplication.domain.Order
+
 
 data class OrderState(
     val isLoading: Boolean = false,

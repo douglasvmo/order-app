@@ -1,10 +1,14 @@
 package com.example.simpleorderapplication.ui.order
 
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.simpleorderapplication.data.models.Order
-import com.example.simpleorderapplication.data.models.Product
-import com.example.simpleorderapplication.data.repository.OrderRepository
+import com.example.simpleorderapplication.data.RealmToRoomMigrator
+import com.example.simpleorderapplication.domain.Client
+import com.example.simpleorderapplication.domain.Order
+import com.example.simpleorderapplication.domain.Product
+
+import com.example.simpleorderapplication.domain.repository.OrdersRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,8 +17,12 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import kotlin.text.toDoubleOrNull
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-class OrderViewModel(private val  repository: OrderRepository): ViewModel() {
+class OrderViewModel(private val  repository: OrdersRepository): ViewModel() {
 
     private val _state = MutableStateFlow(OrderState())
     val state: StateFlow<OrderState> = _state
@@ -52,9 +60,9 @@ class OrderViewModel(private val  repository: OrderRepository): ViewModel() {
                             isLoading = false)
                     }
                 }
-            }.onFailure {
+            }.onFailure { error ->
                 _state.update {
-                    it.copy(erro = it.erro, isLoading = false)
+                    it.copy(erro = error.message, isLoading = false)
                 }
             }
 
@@ -63,52 +71,66 @@ class OrderViewModel(private val  repository: OrderRepository): ViewModel() {
 
     }
 
+
+
+    @OptIn(ExperimentalUuidApi::class)
     private fun createOrder(intent: OrderAction.CreateOrder){
+        val id = Uuid.random().toString()
         viewModelScope.launch {
             runCatching {
                 repository.createOrder(
-                    Order().apply {
-                        clientName = intent.clientName
-                        clientPhone = intent.clientPhone
-                        clientCode = intent.clientCPF
-                    }
+                    Order(
+                        id,
+                        code = _state.value.orders.size.plus(1).toString(),
+                        clientName = intent.clientName,
+                        clientCode = intent.clientCPF,
+                        clientPhone = intent.clientPhone,
+                        products = listOf()
+                    )
                 )
             }
                 .onSuccess {
-                    selectOrder(OrderAction.SelectOrder(it))
+                    selectOrder(OrderAction.SelectOrder(id))
                 }
-                .onFailure {
-                    _state.update { it.copy(erro = it.erro, isLoading = false) }
+                .onFailure { error ->
+                    _state.update { it.copy(erro = error.message, isLoading = false) }
                 }
         }
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     private fun addProduct(intent: OrderAction.AddProduct){
-        _state.update { it.copy(isLoading = true ) }
-        val orderId = _state.value.currentOrder?.id ?: return
-
-        val product = Product().apply {
-            description = intent.description
-            priceCents = intent.price.replace(",", ".").toDoubleOrNull()?.times(100)?.toLong() ?: 0L
+        val order = _state.value.currentOrder ?: return
+        val product = Product(
+            id = Uuid.random().toString(),
+            description = intent.description,
+            priceCents = intent.price.replace(",", ".").toBigDecimalOrNull()
+                ?.movePointRight(2)
+                ?.toInt() ?: 0,
             quantity = intent.quantity.replace(",", ".").toDoubleOrNull() ?: 1.0
-        }
+        )
+        val updatedOrder = order.copy(products = order.products + product)
 
+        _state.update { it.copy(isLoading = true, erro = null) }
         viewModelScope.launch {
             runCatching {
-                repository.addProduct(orderId, product)
+                repository.updateOrder(updatedOrder)
+            }.onSuccess {
+                _state.update { it.copy( isLoading = false) }
             }.onFailure { erro ->
                 _state.update { it.copy(erro = erro.message, isLoading = false)  }
+
             }
         }
     }
 
 
     private fun selectOrder(intent: OrderAction.SelectOrder){
-        val order = _state.value.orders.find { it -> it.id.toString() == intent.orderId } ?: return
+        val order = _state.value.orders.find { it -> it.id == intent.orderId } ?: return
 
         _state.update { it.copy( currentOrder = order) }
         viewModelScope.launch {
-            _effect.emit(OrderEffect.NavigateToOrder(order.id.toString()))
+            _effect.emit(OrderEffect.NavigateToOrder(order.id))
         }
     }
 
@@ -117,15 +139,13 @@ class OrderViewModel(private val  repository: OrderRepository): ViewModel() {
     }
 
     private fun shere(){
-        val managedOrder = _state.value.currentOrder ?: return
+        val orderSnapshot = _state.value.currentOrder ?: return
 
         viewModelScope.launch {
             runCatching {
-                repository.detach(managedOrder)
-            }.onSuccess {detachedOrder ->
-                _effect.emit(OrderEffect.ShereOrder(detachedOrder))
+                _effect.emit(OrderEffect.ShereOrder(orderSnapshot))
             }.onFailure {
-                _state.update { it.copy( erro = it.erro.toString()) }
+                _state.update { state -> state.copy(erro = it.message) }
             }
         }
     }

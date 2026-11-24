@@ -1,6 +1,7 @@
 package com.example.simpleorderapplication.ui.order
 
-import com.example.simpleorderapplication.data.models.Order
+import com.example.simpleorderapplication.domain.Order
+
 
 sealed interface OrderEffect {
     data class NavigateToOrder(val orderId: String): OrderEffect

@@ -5,7 +5,7 @@ import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.RealmUUID
 import io.realm.kotlin.types.annotations.PrimaryKey
 
-class Product: RealmObject {
+class RealmProduct: RealmObject {
     @PrimaryKey
     var id: RealmUUID = RealmUUID.random()
     var description: String = ""
