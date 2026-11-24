@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.realm)
     id("com.google.devtools.ksp")
 }
 
@@ -13,8 +14,8 @@ android {
         applicationId = "com.example.simpleorderapplication"
         minSdk = 29
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 4
+        versionName = "1.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -38,11 +39,21 @@ android {
     buildFeatures {
         compose = true
     }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
 }
 
 dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.realm.kotlin.library.base)
+    implementation(libs.android.koin)
+    implementation(libs.android.koin.compose)
+
+
     val room_version = "2.6.1"
 
     implementation("androidx.room:room-runtime:$room_version")

@@ -1,58 +1,52 @@
 package com.example.simpleorderapplication.ui.screens
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import CreateOrderBottomSheet
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.simpleorderapplication.R
-import com.example.simpleorderapplication.data.relations.OrderWithClient
-import com.example.simpleorderapplication.ui.AppScreen
+import com.example.simpleorderapplication.domain.Order
+import com.example.simpleorderapplication.domain.Product
+import com.example.simpleorderapplication.ui.components.OrderCard
 import com.example.simpleorderapplication.ui.components.SimpleOrderAppTopBar
-import com.example.simpleorderapplication.ui.viewmodels.OrderViewModel
+import com.example.simpleorderapplication.ui.order.OrderAction
+import com.example.simpleorderapplication.ui.order.OrderState
 
 
 @Composable
 fun OrderListScreen(
-    navController: NavController,
-    viewModel: OrderViewModel
-) {
-    val data = viewModel.orders.observeAsState(listOf())
-    var presses by remember { mutableIntStateOf(0) }
+    state: OrderState,
+    onAction: (OrderAction) -> Unit,
+
+    ) {
+
+    var showModal by remember { mutableStateOf(false) }
 
 
-    LaunchedEffect(Unit) {
-        viewModel.loadOrders()
+    if (showModal) {
+        CreateOrderBottomSheet(
+            onDismiss = { showModal = false },
+            onCreateOrder = { clientName, clientPhone, clientCPF ->  onAction(OrderAction.CreateOrder(clientName, clientPhone, clientCPF)) }
+        )
     }
 
 
@@ -61,70 +55,76 @@ fun OrderListScreen(
             SimpleOrderAppTopBar(stringResource(R.string.order_list_screen_title))
         },
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = {
-                    navController.navigate(AppScreen.CreateOrder.name)
+                    showModal = true
                 },
-                shape = CircleShape
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add")
-            }
+                icon = { Icon(Icons.Default.Add, "Novo Pedido") },
+                text = { Text("Novo Pedido") },
+            )
         }
-    ) { innerPadding ->
-        LazyColumn(modifier = Modifier.padding(innerPadding), contentPadding = PaddingValues(4.dp)) {
-                items(data.value) {
-                        order -> OrderCard(
-                    order,
-                    onClick = {
-                        viewModel.selectOrder(order)
-                        navController.navigate(AppScreen.OrderDetails.name)
-                    },
-                )
-                }
-
-        }
-    }
-
-}
-
-@Composable
-fun OrderCard(order: OrderWithClient, onClick: () -> Unit) {
-    OutlinedCard(
-        Modifier
-            .fillMaxWidth().padding(4.dp).clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = rememberRipple()
-            ) { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        ),
-    ) {
-        Row(Modifier.padding(4.dp)) {
-            Column(Modifier.fillMaxWidth(0.85f)) {
-                Row( verticalAlignment = Alignment.Bottom) {
-                    Text(stringResource(R.string.order_card_order_number))
-                    Text(order.order.id.toString(), Modifier.padding(horizontal = 4.dp), fontSize = 16.sp)
-                }
-                Row {
-                    Text(stringResource(R.string.order_card_client_name))
-                    Text(order.client.name, Modifier.padding(horizontal = 4.dp), fontSize = 16.sp)
-                }
-                Row {
-                    Text(stringResource(R.string.order_card_client_phone))
-                    Text(order.client.phone, Modifier.padding(horizontal = 4.dp))
+    ) { paddingValues ->
+        LazyColumn(Modifier.padding(paddingValues), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            if(state.erro !== null) {
+                item {
+                    Text(
+                        text = state.erro,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.error,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
-            Column(Modifier.fillMaxWidth(), Arrangement.Top, Alignment.CenterHorizontally) {
-                Text(order.order.total.toString(), fontSize = 12.sp)
+
+            if(state.isLoading) {
+                item {
+                    Text(
+                        text = "Carregando...",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            items(state.orders) { order ->
+                OrderCard(order) {
+                    onAction(OrderAction.SelectOrder(order.id.toString()))
+                }
             }
         }
-
     }
 }
 
-
-@Composable
 @Preview
-fun OrderListScreenPreview() {
+@Composable
+fun OrderListScreenPreview(){
+    val state = OrderState(
+        orders = listOf(
+            Order(
+                id = "order-1",
+                code = "10",
+                clientName = "Maria Aparecida",
+                clientCode = null,
+                clientPhone = null,
+                products = listOf(Product("product-1", "Produto", 12.0, 20000))
+            ),
+            Order(
+                id = "order-2",
+                code = "9",
+                clientName = "Joaquim Jose da Silva Xavier",
+                clientCode = null,
+                clientPhone = null,
+                products = listOf(
+                    Product("product-2", "Produto", 12.0, 20000),
+                    Product("product-3", "Outro produto", 1.0, 500000)
+                )
+            )
+        )
+    )
+
+    OrderListScreen(
+        state,
+        {}
+    )
 
 }

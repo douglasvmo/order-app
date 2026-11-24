@@ -1,5 +1,6 @@
 package com.example.simpleorderapplication.ui.components
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -13,7 +14,11 @@ import androidx.compose.runtime.Composable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SimpleOrderAppTopBar(title: String = "New Screen", onGoBackClick: (() -> Unit)? = null) {
+fun SimpleOrderAppTopBar(
+    title: String = "New Screen",
+    navegationIcon: @Composable () -> Unit = {},
+    actions: @Composable (RowScope.() -> Unit) = {}
+) {
     CenterAlignedTopAppBar(
         colors = TopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -25,11 +30,8 @@ fun SimpleOrderAppTopBar(title: String = "New Screen", onGoBackClick: (() -> Uni
         title = {
             Text(title)
         },
-        navigationIcon = {
-            if(onGoBackClick != null){
-                GoBackIcon(onGoBackClick)
-            }
-        }
+        navigationIcon = navegationIcon,
+        actions = actions
     )
 }
 
