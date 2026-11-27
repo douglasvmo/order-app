@@ -13,6 +13,7 @@ navigationCompose = "2.8.6"
 runtimeLivedata = "1.7.7"
 realm = "2.3.0"
 koin = "3.5.6"
+turbine = "1.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -35,6 +36,7 @@ androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtim
 realm-kotlin-library-base = { group = "io.realm.kotlin",  name = "library-base", version.ref = "realm" }
 android-koin = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 android-koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
 
 
